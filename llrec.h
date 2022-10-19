@@ -81,7 +81,24 @@ Node* llfilter(Node* head, Comp pred)
     //*********************************************
     // Provide your implementation below
     //*********************************************
+    if(head == NULL) {
+        return NULL;
+    }
+    
+    // save address of last node.
+    head->next = llfilter(head->next, pred);
+    
+    // if we don't want to delete, just return head
+    if(pred(head->val) == false) {
+        return head;
+    }
 
+    // if we do, return nextNode and delete head
+    else {
+        Node* temp = head->next;
+        delete head;
+        return temp;
+    }
 
 }
 
