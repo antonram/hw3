@@ -14,6 +14,6 @@ stack-test: stack-test.cpp stack.h
 		$(CXX) $(CXXFLAGS) $^ -o $@
 
 clean:
-	rm -f *.o rh llrec-test *~
+	rm -f *.o rh llrec-test stack-test *~
 
 .PHONY: clean 
