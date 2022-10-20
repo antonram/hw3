@@ -2,6 +2,7 @@
 #define HEAP_H
 #include <functional>
 #include <stdexcept>
+#include <vector>
 
 template <typename T, typename PComparator = std::less<T> >
 class Heap
@@ -61,11 +62,11 @@ public:
 
 private:
   /// Add whatever helper functions and data members you need below
-std::vector<T> items;
+typename std::vector<T> items;
 int m_;
 PComparator c_;
-void trickleDown(int root);
-void trickleUp(int root);
+void trickleDown(size_t root);
+void trickleUp(size_t root);
 
 
 };
@@ -122,19 +123,19 @@ void Heap<T,PComparator>::pop()
 
 //assign values to data members
 template <typename T, typename PComparator>
-Heap::Heap(int m, PComparator c) 
-: m_(m) c_(c) 
+Heap<T,PComparator>::Heap(int m, PComparator c) 
+: m_(m), c_(c) 
 { }
 
 
 // no need to destroy anything...
 template <typename T, typename PComparator>
-Heap::~Heap(int m, PComparator c) 
+Heap<T,PComparator>::~Heap() 
 { }
 
 
 template <typename T, typename PComparator>
-void Heap::push(const T& item) {
+void Heap<T,PComparator>::push(const T& item) {
   //first we add item to the end
   items.push_back(item);
 
@@ -144,7 +145,7 @@ void Heap::push(const T& item) {
 
 
 template <typename T, typename PComparator>
-bool Heap::empty() const {
+bool Heap<T,PComparator>::empty() const {
   //if items is empty, return true
   if(items.size() == 0) {
     return true;
@@ -155,15 +156,62 @@ bool Heap::empty() const {
 
 
 template <typename T, typename PComparator>
-size_t Heap::size() const {
+size_t Heap<T,PComparator>::size() const {
   //return size of items vector
   return items.size();
 }
 
 
 template <typename T, typename PComparator>
-void Heap::trickleDown(int root) {
+void Heap<T,PComparator>::trickleDown(size_t root) {
+	size_t childIndex = root*m_ + 1;
+	//if no child, return
+	if(childIndex > items.size()) {
+		return;
+	}
+	T child = items[childIndex];
 
+	//find best child and store it in child
+	size_t i = childIndex+1;
+	while((i <= (root*m_ + m_)) && (i < items.size())) {
+		// if new node better, set child to new node
+		if(c_(items[i], child)) {
+			child = items[i];
+			childIndex = i;
+		}
+		i++;
+	}
+
+	// if "best" child has priority over parent, swap the two and call trickleDown again on childIndex
+	if(c_(child, items[root])) {
+		items[childIndex] = items[root];
+		items[root] = child;
+		trickleDown(childIndex);
+	}
+}
+
+
+template <typename T, typename PComparator>
+void Heap<T,PComparator>::trickleUp(size_t root) {
+	//if at origin, just return
+	if(root == 0) {
+		return;
+	}
+	T parent;
+	size_t parentIndex;
+
+	//find parent
+	parentIndex = (root-1)/m_;
+	parent = items[parentIndex];
+
+	// if child is better
+	if(c_(items[root], parent)) {
+		//swap child and parent
+		items[parentIndex] = items[root];
+		items[root] = parent;
+		//and call trickleUp again on parentIndex
+		trickleUp(parentIndex);
+	}
 }
 
 #endif
